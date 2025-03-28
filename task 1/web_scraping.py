@@ -20,8 +20,16 @@ driver.get(url)
 div = driver.find_element(By.CLASS_NAME,"cover-richtext-tile.tile-content")
 
 ol = div.find_element(By.TAG_NAME,"ol")
-li = ol.find_elements(By.TAG_NAME,"li")
-links = [li.find_element(By.TAG_NAME,"a").get_attribute('href') for li in li]
+lis = ol.find_elements(By.TAG_NAME,"li")
+
+
+links=[]
+
+for li in lis:
+    a_tag = li.find_element(By.TAG_NAME,"a")
+    link= a_tag.get_attribute('href')
+    links.append(link)
+
 
 driver.quit()
 
