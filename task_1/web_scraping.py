@@ -4,14 +4,15 @@ from selenium.webdriver.common.by import By
 import zipfile
 import os
 
-pasta="pdfs"
-try:
-    if os.path.exists(pasta):
-        print(f"Já existe uma pasta com o nome {pasta}")
-    else:
-        os.mkdir(pasta)
-except OSError:
-    print("Não foi possível criar um arquivo")
+
+def criar_pasta(nome_da_pasta):
+    try:
+        if os.path.exists(nome_da_pasta):
+            print(f"Já existe uma pasta com o nome {nome_da_pasta}")
+        else:
+            os.mkdir(nome_da_pasta)
+    except OSError:
+        print("Não foi possível criar um arquivo")
 
 driver = webdriver.Chrome()
 url = "https://www.gov.br/ans/pt-br/acesso-a-informacao/participacao-da-sociedade/atualizacao-do-rol-de-procedimentos"
@@ -35,17 +36,24 @@ driver.quit()
 
 pdfs = []
 
-for link in links:
+pasta_pdf="./task_1/anexos_pdfs"
+
+criar_pasta(pasta_pdf)
+
+
+for i,link in enumerate(links):
     nome_arquivo = link.split("/")[-1]
     resposta = requests.get (link, stream=True)
-    pasta_pdf= os.path.join(pasta,nome_arquivo)
-    with open (pasta_pdf,"wb") as arquivo:
+    caminho_arquivo = os.path.join(pasta_pdf, nome_arquivo)
+    print(f"Baixando o {i+1}° pdf...")
+    with open (caminho_arquivo,"wb") as arquivo:
         for chunk in resposta.iter_content(chunk_size=8192):
             arquivo.write(chunk)   
     pdfs.append(pasta_pdf)
+print("Pdf Baixados Com sucesso.")
 
 
-nome="pdfs_mesclados.zip"
+nome="./task_1/anexos_pdfs_mesclados.zip"
 with zipfile.ZipFile (nome, 'w',zipfile.ZIP_DEFLATED) as zipf:
     for pdf_files in pdfs:
         zipf.write(pdf_files,os.path.basename(pdf_files))
