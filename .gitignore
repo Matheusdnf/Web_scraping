@@ -78,6 +78,7 @@ docs/_build/
 # Ignore files 
 *.zip
 *.pdf
+*.csv
 
 # PyBuilder
 .pybuilder/
