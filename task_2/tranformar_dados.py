@@ -1,12 +1,11 @@
-import os
 import zipfile
 import pdfplumber
 import pandas as pd
 import csv
 
-pdf_file = "./pdfs/Anexo_I_Rol_2021RN_465.2021_RN627L.2024.pdf"
-csv_output = "tabelas_extraidas.csv"
-zip_output = "Teste_{Matheus_Diniz}.zip"
+pdf_file = "./task_1/anexos_pdfs/Anexo_I_Rol_2021RN_465.2021_RN627L.2024.pdf"
+csv_output = "task_2/tabelas_extraidas.csv"
+zip_output = "./task_2/Teste_{Matheus_Diniz}.zip"
 
 todas_tabelas = []
 
