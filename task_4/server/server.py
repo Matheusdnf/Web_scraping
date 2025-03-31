@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import logging
 from fastapi import Query
+
+#utilização de fast api para colocar o servidor no ar
 app = FastAPI()
 
 logging.basicConfig(level=logging.INFO)
@@ -36,7 +38,7 @@ except Exception as e:
     logger.error(f"FALHA CRÍTICA: {str(e)}")
     df = pd.DataFrame()
 
-
+#rota padrão retornando o estado da api e os endpoints
 @app.get("/")
 async def root():
     return {
@@ -49,7 +51,7 @@ async def root():
         }
     }
 
-
+#busca por qualquer termo que exista no csv
 @app.get("/buscar/{termo}")
 async def buscar(termo: str, limite: int = 5):
     if df.empty:
@@ -69,8 +71,8 @@ async def buscar(termo: str, limite: int = 5):
         logger.error(f"Erro na busca: {str(e)}")
         raise HTTPException(status_code=500, detail="Erro interno")
 
-
-@app.get("/nome_fantasia/{nome_fantasia}")  # Mudei o parâmetro para uf
+# busca pelo nome fantasia da empresa
+@app.get("/nome_fantasia/{nome_fantasia}") 
 async def detalhes(nome_fantasia: str):
     if df.empty:
         raise HTTPException(status_code=503, detail="Dados não carregados")
@@ -85,7 +87,7 @@ async def detalhes(nome_fantasia: str):
 
     return operadoras.fillna("").to_dict(orient='records')
 
-
+# endpoint que retorna tudo que estiver no csv
 @app.get("/tudo")
 async def todos_dados(
     aumentar_quantidade: int = Query(None, description="Quantidade adicional de itens para carregar"),
