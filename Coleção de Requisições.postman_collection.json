@@ -1,0 +1,147 @@
+{
+	"info": {
+		"_postman_id": "58a7a59b-7765-464f-932a-a239057a408f",
+		"name": "Coleção de Requisições",
+		"description": "Teste da minha api feita com python, consultar se as requizições estão funcionando de forma correta.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43599081",
+		"_collection_link": "https://matheus-947982.postman.co/workspace/matheus's-Workspace~e0417e8d-aa5f-4dda-839b-6238eee6bdc0/collection/43599081-58a7a59b-7765-464f-932a-a239057a408f?action=share&source=collection_link&creator=43599081"
+	},
+	"item": [
+		{
+			"name": "Todos_os_dados",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8001/tudo?aumentar_quantidade=40",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"tudo"
+					],
+					"query": [
+						{
+							"key": "aumentar_quantidade",
+							"value": "40"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Detalhes_da_requizicao",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8001/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buscar_por_qualquer_informacao",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"//Ao inserir qualquer valor, ele irá buscar por qualquer informação em todos CSV\r",
+							"const termos = [\"SP\", \"Rio\", \"Hospital\",\"Unimed\",\"Santander\"];\r",
+							"\r",
+							"\r",
+							"pm.variables.set(\"termo\", termos[Math.floor(Math.random() * termos.length)]);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8001/buscar/{{termo}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"buscar",
+						"{{termo}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Pesquisar_nome_fantasia",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"//Ao inserir qualquer valor, ele irá buscar por qualquer informação em todos CSV\r",
+							"const nome = [\"Claro\",\"Unimed\"];\r",
+							"\r",
+							"\r",
+							"pm.variables.set(\"nome\", nome[Math.floor(Math.random() * nome.length)]);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8001/nome_fantasia/{{nome}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"nome_fantasia",
+						"{{nome}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
