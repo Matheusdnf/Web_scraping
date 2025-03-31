@@ -2,15 +2,11 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import os
 import requests
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from funcoes.funcoes_genereicas import criar_pasta
 
-def criar_pasta(nome_da_pasta):
-    try:
-        if os.path.exists(nome_da_pasta):
-            print(f"Já existe uma pasta com o nome {nome_da_pasta}")
-        else:
-            os.mkdir(nome_da_pasta)
-    except OSError:
-        print("Não foi possível criar um arquivo")
 
 driver = webdriver.Chrome()
 url = "https://dadosabertos.ans.gov.br/FTP/PDA/operadoras_de_plano_de_saude_ativas/"

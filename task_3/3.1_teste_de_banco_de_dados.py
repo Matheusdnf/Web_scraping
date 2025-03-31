@@ -3,23 +3,20 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import zipfile
 import os
+import sys
 from datetime import datetime
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from funcoes.funcoes_genereicas import criar_pasta
 
-def criar_pasta(nome_da_pasta):
-    try:
-        if os.path.exists(nome_da_pasta):
-            print(f"Já existe uma pasta com o nome {nome_da_pasta}")
-        else:
-            os.mkdir(nome_da_pasta)
-    except OSError:
-        print("Não foi possível criar um arquivo")
 
+# faz o cálculo para pegar apenas os dois último anos
 data=datetime.now().year
 data_anos=[]
-
 for i in range(1,3):
     ano=data-i
     data_anos.append(ano)
+
 
 driver = webdriver.Chrome()
 url = "https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/"
@@ -27,9 +24,8 @@ driver.get(url)
 
 links_encontrados = []
 
+# busca no html para baixar os arquivos 
 for ano_buscado in data_anos:
-
-
     link_ano = driver.find_element(By.LINK_TEXT, f"{ano_buscado}/")
     link_ano.click()
     table = driver.find_element(By.TAG_NAME, "table")
@@ -60,6 +56,7 @@ criar_pasta(pasta_dowload)
 arquivos_baixados = []
 
 
+#baixar os pdsf
 for link in links_encontrados:
     nome_arquivo = link.split("/")[-1]
     caminho_arquivo = os.path.join(pasta_dowload, nome_arquivo)
@@ -74,6 +71,7 @@ for link in links_encontrados:
 
 print("\nDownload concluído!")
 
+# Caso queira descompactar os mesmo
 print("Deseja Descompactar os Arquivos baixados ?")
 descompatar=input("Resposta S/N: ").lower()
 

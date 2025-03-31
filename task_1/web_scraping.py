@@ -3,16 +3,12 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import zipfile
 import os
+import sys
+#criação de uma biblioteca de funções genericas
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from funcoes.funcoes_genereicas import criar_pasta
 
-
-def criar_pasta(nome_da_pasta):
-    try:
-        if os.path.exists(nome_da_pasta):
-            print(f"Já existe uma pasta com o nome {nome_da_pasta}")
-        else:
-            os.mkdir(nome_da_pasta)
-    except OSError:
-        print("Não foi possível criar um arquivo")
 
 driver = webdriver.Chrome()
 url = "https://www.gov.br/ans/pt-br/acesso-a-informacao/participacao-da-sociedade/atualizacao-do-rol-de-procedimentos"
@@ -40,7 +36,7 @@ pasta_pdf="./task_1/anexos_pdfs"
 
 criar_pasta(pasta_pdf)
 
-
+# baixar os pdfs
 for i,link in enumerate(links):
     nome_arquivo = link.split("/")[-1]
     resposta = requests.get (link, stream=True)
@@ -52,7 +48,7 @@ for i,link in enumerate(links):
     pdfs.append(pasta_pdf)
 print("Pdf Baixados Com sucesso.")
 
-
+# Compactar em formato zip
 nome="./task_1/anexos_pdfs_mesclados.zip"
 with zipfile.ZipFile (nome, 'w',zipfile.ZIP_DEFLATED) as zipf:
     for pdf_files in pdfs:
