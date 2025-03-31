@@ -50,6 +50,7 @@ Na raiz do projeto, há uma coleção de requisições no **Postman** para testa
 
 - Python v3.12 ou subsequentes
 - Navegador Chrome
+- Plataforma Windows 11
 - Visual Studio Code (IDE)
 - Vue.js
 - Postman
