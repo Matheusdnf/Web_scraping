@@ -53,14 +53,14 @@ async def root():
         }
     }
 
-# Pode passar qualquer coisa para buscar em qualquer coluna 
+
 @app.get("/buscar/{termo}")
 async def buscar(termo: str, limite: int = 5):
     if df.empty:
         raise HTTPException(status_code=503, detail="Dados não carregados")
     
     try:
-        # Busca case-insensitive em todas as colunas
+
         mask = df.apply(lambda col: col.astype(str).str.contains(termo, case=False)).any(axis=1)
         print(mask)
         resultados = df[mask].head(limite)
@@ -75,13 +75,13 @@ async def buscar(termo: str, limite: int = 5):
         logger.error(f"Erro na busca: {str(e)}")
         raise HTTPException(status_code=500, detail="Erro interno")
 
-# Rota de detalhes
+
 @app.get("/nome_fantasia/{nome_fantasia}")  # Mudei o parâmetro para uf
 async def detalhes(nome_fantasia: str):
     if df.empty:
         raise HTTPException(status_code=503, detail="Dados não carregados")
     
-    # Filtra apenas por UF (case-insensitive)
+
     operadoras = df[df['nome_fantasia'].astype(str).str.upper() == nome_fantasia.upper()]
     
     if operadoras.empty:
@@ -90,10 +90,10 @@ async def detalhes(nome_fantasia: str):
             detail=f"Nenhuma operadora encontrada na UF: {nome_fantasia}"
         )
     
-    # Retorna todos os resultados daquela UF
+
     return operadoras.fillna("").to_dict(orient='records')
 
-# Nova rota para exibir todos os dados
+
 @app.get("/tudo")
 async def todos_dados(
     aumentar_quantidade: int = Query(None, description="Quantidade adicional de itens para carregar"),
@@ -105,7 +105,7 @@ async def todos_dados(
         raise HTTPException(status_code=503, detail="Dados não carregados")
     
     try:
-        # Lógica para aumentar_quantidade
+
         if aumentar_quantidade:
             if limite:
                 novo_limite = limite + aumentar_quantidade
@@ -113,7 +113,7 @@ async def todos_dados(
                 novo_limite = (pagina * itens_por_pagina) + aumentar_quantidade
             
             dados = df.head(novo_limite)
-        # Lógica original para limite ou paginação
+
         elif limite:
             dados = df.head(limite)
         else:
