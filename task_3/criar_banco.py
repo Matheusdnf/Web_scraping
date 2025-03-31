@@ -32,6 +32,7 @@ def criar_banco_se_nao_existir(conexao, nome_banco):
         if cursor:
             cursor.close()
 
+#executa o esquema sql para modelar o banco
 def executar_script_sql(arquivo_sql, conexao):
     try:
         cursor = conexao.cursor()
@@ -51,15 +52,17 @@ def executar_script_sql(arquivo_sql, conexao):
         if cursor:
             cursor.close()
 
-def clean_value(value):
-    if value is None or value.strip() == '':
+# tratamento dos valores os limpando caso encontre algum valor inconsistente
+def limpar_valor(valor):
+    if valor is None or valor.strip() == '':
         return None
-    value = value.strip()
+    valor = valor.strip()
     # Substitui vírgula por ponto para decimais
-    if isinstance(value, str) and ',' in value:
-        value = value.replace('.', '').replace(',', '.')  # Remove pontos de milhar e converte vírgula
-    return value
+    if isinstance(valor, str) and ',' in valor:
+        valor = valor.replace('.', '').replace(',', '.')  # Remove pontos de milhar e converte vírgula
+    return valor
 
+# Aqui foi desativado as chaves para respeitas o esquema sql e assim inserir os arquivos
 def importar_dados_csv(conexao, arquivo_csv):
     try:
         cursor = conexao.cursor()
@@ -71,13 +74,13 @@ def importar_dados_csv(conexao, arquivo_csv):
             csvreader = csv.DictReader(csvfile, delimiter=';')
             
             for row in csvreader:
-                registro_operadora = clean_value(row['Registro_ANS'])[:6]  # Garante máximo 6 caracteres
+                registro_operadora = limpar_valor(row['Registro_ANS'])[:6]  # Garante máximo 6 caracteres
                 
                 try:
                     # Converte região de comercialização para inteiro ou NULL
-                    regiao = clean_value(row['Regiao_de_Comercializacao'])
+                    regiao = limpar_valor(row['Regiao_de_Comercializacao'])
                     regiao_comercializacao = int(regiao) if regiao and regiao.isdigit() else None
-                    
+                    #inserir os valores
                     cursor.execute('''
                     INSERT INTO operadoras VALUES (
                         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
@@ -85,25 +88,25 @@ def importar_dados_csv(conexao, arquivo_csv):
                     )
                     ''', (
                         registro_operadora, 
-                        clean_value(row['CNPJ']),
-                        clean_value(row['Razao_Social']),
-                        clean_value(row['Nome_Fantasia']),
-                        clean_value(row['Modalidade']),
-                        clean_value(row['Logradouro']),
-                        clean_value(row['Numero']),
-                        clean_value(row['Complemento']),
-                        clean_value(row['Bairro']),
-                        clean_value(row['Cidade']),
-                        clean_value(row['UF']),
-                        clean_value(row['CEP']),
-                        clean_value(row['DDD']),
-                        clean_value(row['Telefone']),
-                        clean_value(row['Fax']),
-                        clean_value(row['Endereco_eletronico']),
-                        clean_value(row['Representante']),
-                        clean_value(row['Cargo_Representante']),
-                        regiao_comercializacao,  # Já tratado como inteiro ou NULL
-                        clean_date(row['Data_Registro_ANS'])
+                        limpar_valor(row['CNPJ']),
+                        limpar_valor(row['Razao_Social']),
+                        limpar_valor(row['Nome_Fantasia']),
+                        limpar_valor(row['Modalidade']),
+                        limpar_valor(row['Logradouro']),
+                        limpar_valor(row['Numero']),
+                        limpar_valor(row['Complemento']),
+                        limpar_valor(row['Bairro']),
+                        limpar_valor(row['Cidade']),
+                        limpar_valor(row['UF']),
+                        limpar_valor(row['CEP']),
+                        limpar_valor(row['DDD']),
+                        limpar_valor(row['Telefone']),
+                        limpar_valor(row['Fax']),
+                        limpar_valor(row['Endereco_eletronico']),
+                        limpar_valor(row['Representante']),
+                        limpar_valor(row['Cargo_Representante']),
+                        regiao_comercializacao,  
+                        limpar_data(row['Data_Registro_ANS'])
                     ))
                 except Error as e:
                     print(f"Erro ao inserir operadora {registro_operadora}: {e}")
@@ -120,9 +123,8 @@ def importar_dados_csv(conexao, arquivo_csv):
         if cursor:
             cursor.close()
 
-
-
-def clean_date(date_str):
+# formatação da data para ficar padronizada
+def limpar_data(date_str):
     if not date_str or str(date_str).strip() == '':
         return None
     
@@ -145,6 +147,7 @@ def clean_date(date_str):
     
     return None
 
+# Importar o csv de demonstações
 def importar_demonstracoes_csv(conexao, caminho_pasta):
     try:
         cursor = conexao.cursor()
@@ -169,9 +172,10 @@ def importar_demonstracoes_csv(conexao, caminho_pasta):
                         csvreader = csv.DictReader(csvfile, delimiter=';')
                         
                         for row in csvreader:
-                            registro_op = clean_value(row['REG_ANS'])[:6]  # Garante máximo 6 caracteres
+                            registro_op = limpar_valor(row['REG_ANS'])[:6]
                             
                             # Verifica se a operadora existe antes de inserir
+                            # Pelo fato de não existir uma operadora não faz sentido ter uma cobrança atrelada a mesma
                             if registro_op not in operadoras_validas:
                                 print(f"Operadora {registro_op} não encontrada - registro ignorado")
                                 erros += 1
@@ -183,12 +187,12 @@ def importar_demonstracoes_csv(conexao, caminho_pasta):
                                 (data, registro_operadora, cd_conta_contabil, descricao, vl_saldo_inicial, vl_saldo_final) 
                                 VALUES (%s, %s, %s, %s, %s, %s)
                                 ''', (
-                                    clean_date(row['DATA']),
+                                    limpar_data(row['DATA']),
                                     registro_op,
-                                    clean_value(row['CD_CONTA_CONTABIL']),
-                                    clean_value(row['DESCRICAO']),
-                                    clean_value(row['VL_SALDO_INICIAL']),
-                                    clean_value(row['VL_SALDO_FINAL'])
+                                    limpar_valor(row['CD_CONTA_CONTABIL']),
+                                    limpar_valor(row['DESCRICAO']),
+                                    limpar_valor(row['VL_SALDO_INICIAL']),
+                                    limpar_valor(row['VL_SALDO_FINAL'])
                                 ))
                                 registros_importados += 1
                             except Error as e:
@@ -221,7 +225,7 @@ def importar_demonstracoes_csv(conexao, caminho_pasta):
 try:
     nome_banco = "operadoras"
     
-    # 1. Criar banco (com conexão root)
+    # conexão com o banco local
     conn = mysql.connector.connect(
         host="localhost",
         user="root",

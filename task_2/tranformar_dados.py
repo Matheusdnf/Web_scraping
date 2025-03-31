@@ -3,13 +3,15 @@ import pdfplumber
 import pandas as pd
 import csv
 
+
+#Necessita ter executado task_1 primeiro 
 pdf_file = "./task_1/anexos_pdfs/Anexo_I_Rol_2021RN_465.2021_RN627L.2024.pdf"
 csv_output = "task_2/tabelas_extraidas.csv"
 zip_output = "./task_2/Teste_{Matheus_Diniz}.zip"
 
 todas_tabelas = []
 
-# Abre o PDF e extrai todas as tabelas
+#irá abrir o pdf e unir todas as tabelas
 with pdfplumber.open(pdf_file) as pdf:
     for i, page in enumerate(pdf.pages):
         tabelas = page.extract_tables()
