@@ -4,6 +4,9 @@ import pandas as pd
 import logging
 from fastapi import Query
 
+#Digite esté comando -> python -m uvicorn server:app --reload 
+#Assim o servidor será colocado no ar
+
 #utilização de fast api para colocar o servidor no ar
 app = FastAPI()
 
