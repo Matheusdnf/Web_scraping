@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import os
 import logging
-
+from fastapi import Query
 app = FastAPI()
 
 logging.basicConfig(level=logging.INFO)
@@ -95,22 +95,40 @@ async def detalhes(nome_fantasia: str):
 
 # Nova rota para exibir todos os dados
 @app.get("/tudo")
-async def todos_dados(limite: int = None, pagina: int = 1, itens_por_pagina: int = 10):
+async def todos_dados(
+    aumentar_quantidade: int = Query(None, description="Quantidade adicional de itens para carregar"),
+    limite: int = Query(None, description="Limite máximo inicial de registros"),
+    pagina: int = Query(1, description="Número da página atual"),
+    itens_por_pagina: int = Query(10, description="Itens exibidos por página")
+):
     if df.empty:
         raise HTTPException(status_code=503, detail="Dados não carregados")
     
     try:
-        # Se limite for especificado, retorna apenas os primeiros N registros
-        if limite:
+        # Lógica para aumentar_quantidade
+        if aumentar_quantidade:
+            if limite:
+                novo_limite = limite + aumentar_quantidade
+            else:
+                novo_limite = (pagina * itens_por_pagina) + aumentar_quantidade
+            
+            dados = df.head(novo_limite)
+        # Lógica original para limite ou paginação
+        elif limite:
             dados = df.head(limite)
         else:
-            # Paginação
             inicio = (pagina - 1) * itens_por_pagina
             fim = inicio + itens_por_pagina
             dados = df.iloc[inicio:fim]
         
         return {
             "total_registros": len(df),
+            "parametros_usados": {
+                "limite": limite,
+                "pagina": pagina,
+                "itens_por_pagina": itens_por_pagina,
+                "aumentar_quantidade": aumentar_quantidade
+            },
             "registros_retornados": len(dados),
             "dados": dados.fillna("").to_dict(orient='records')
         }

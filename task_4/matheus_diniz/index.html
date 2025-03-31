@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dados da Operadora de Saúde</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        font-size: 0.9em;
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #4caf50;
+        color: white;
+        position: sticky;
+        top: 0;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      tr:hover {
+        background-color: #e6f7e6;
+      }
+      .button-timeout {
+        background-color: #cccccc !important;
+        color: #666666 !important;
+        cursor: not-allowed;
+      }
+      .error {
+        color: red;
+        margin-top: 10px;
+      }
+
+      button {
+        padding: 10px 15px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1em;
+        margin: 10px 5px;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+
+      h1 {
+        color: #2c3e50;
+      }
+
+      h2 {
+        color: #4caf50;
+        font-size: 1.2em;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h1>Dados da Operadora de Saúde</h1>
+      <h2 v-if="termo">Termo pesquisado: {{ termo }}</h2>
+
+      <button @click="fetchData">Carregar Dados</button>
+
+      <button 
+      @click="addMoreData" 
+      :disabled="timeoutActive"
+      :class="{ 'button-timeout': timeoutActive }">
+      {{ timeoutActive ? `Aguarde... (${timeoutCountdown}s)` : 'Adicionar mais informações' }}
+    </button>
+
+      <p>Itens Carregados {{visibleData.length}}</p>
+
+      <div v-if="loading">Carregando...</div>
+
+      <div v-if="error" class="error">Ocorreu um erro: {{ error }}</div>
+
+      <table v-if="visibleData.length > 0">
+        <thead>
+          <tr>
+            <th>Registro ANS</th>
+            <th>CNPJ</th>
+            <th>Razão Social</th>
+            <th>Nome Fantasia</th>
+            <th>Modalidade</th>
+            <th>Cidade</th>
+            <th>UF</th>
+            <th>Telefone</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in visibleData" :key="index">
+            <td>{{ item.registro_ans }}</td>
+            <td>{{ formatCNPJ(item.cnpj) }}</td>
+            <td>{{ item.razao_social }}</td>
+            <td>{{ item.nome_fantasia || '-' }}</td>
+            <td>{{ item.modalidade }}</td>
+            <td>{{ item.cidade }}</td>
+            <td>{{ item.uf }}</td>
+            <td>
+              {{ item.ddd ? `(${item.ddd}) ${item.telefone}` : item.telefone ||
+              '-' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+    
+    <script>
+      new Vue({
+        el: "#app",
+        data() {
+          return {
+            termo: "",
+            data: [],
+            loading: false,
+            error: null,
+            visibleLimit: 10, 
+            increment: 10, 
+            timeoutActive: false,
+            aumentarQuantidade: 40, 
+            timeoutCountdown: 0, 
+            timeoutInterval: null 
+          };
+        },
+        computed: {
+          filteredData() {
+       
+            return this.data.filter(
+              (item) => item.nome_fantasia && item.nome_fantasia.trim() !== "-"
+            );
+          },
+          visibleData() {
+          
+            return this.filteredData.slice(0, this.visibleLimit);
+          },
+        },
+        methods: {
+          async fetchData() {
+            this.loading = true;
+            this.error = null;
+            this.visibleLimit = 10; 
+
+            try {
+            
+              const response = await fetch(
+                `http://localhost:8001/tudo?aumentar_quantidade=${this.aumentarQuantidade}`
+              );
+
+              if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+              }
+
+              const jsonData = await response.json();
+              this.termo = jsonData.termo;
+              this.data = jsonData.resultados || jsonData.dados || [];
+            } catch (err) {
+              this.error = err.message;
+              this.data = [];
+            } finally {
+              this.loading = false;
+            }
+          },
+          addMoreData() {
+            if (this.timeoutActive) return; 
+            this.timeoutActive = true; 
+            this.timeoutCountdown = 3; 
+          
+            this.visibleLimit += this.increment;
+
+this.timeoutInterval = setInterval(() => {
+              this.timeoutCountdown--;
+              
+              if (this.timeoutCountdown <= 0) {
+                clearInterval(this.timeoutInterval);
+                this.timeoutActive = false;
+              }
+            }, 1000);
+          
+            setTimeout(() => {
+              this.timeoutActive = false; 
+            }, 3000); 
+          },
+          loadMore() {
+            if (this.timeoutActive) return; 
+            this.timeoutActive = true; 
+
+        
+            this.visibleLimit += this.increment;
+
+        
+            setTimeout(() => {
+              this.timeoutActive = false; 
+            }, 3000); 
+          },
+          formatCNPJ(cnpj) {
+            if (!cnpj) return "-";
+            return cnpj.replace(
+              /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
+              "$1.$2.$3/$4-$5"
+            );
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
