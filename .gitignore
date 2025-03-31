@@ -79,6 +79,7 @@ docs/_build/
 *.zip
 *.pdf
 *.csv
+tempCodeRunnerFile.py
 
 # PyBuilder
 .pybuilder/
