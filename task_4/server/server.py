@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
-import os
 import logging
 from fastapi import Query
 app = FastAPI()
@@ -16,7 +15,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 try:
     csv_path =  "Relatorio_cadop.csv"
@@ -39,8 +37,6 @@ except Exception as e:
     df = pd.DataFrame()
 
 
-
-
 @app.get("/")
 async def root():
     return {
@@ -58,9 +54,7 @@ async def root():
 async def buscar(termo: str, limite: int = 5):
     if df.empty:
         raise HTTPException(status_code=503, detail="Dados não carregados")
-    
     try:
-
         mask = df.apply(lambda col: col.astype(str).str.contains(termo, case=False)).any(axis=1)
         print(mask)
         resultados = df[mask].head(limite)
@@ -81,7 +75,6 @@ async def detalhes(nome_fantasia: str):
     if df.empty:
         raise HTTPException(status_code=503, detail="Dados não carregados")
     
-
     operadoras = df[df['nome_fantasia'].astype(str).str.upper() == nome_fantasia.upper()]
     
     if operadoras.empty:
@@ -89,7 +82,6 @@ async def detalhes(nome_fantasia: str):
             status_code=404,
             detail=f"Nenhuma operadora encontrada na UF: {nome_fantasia}"
         )
-    
 
     return operadoras.fillna("").to_dict(orient='records')
 
