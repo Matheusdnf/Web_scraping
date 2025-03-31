@@ -1,10 +1,7 @@
 requests
 selenium
-zipfile
-sys
 pathlib 
 pdfplumber
-csv
 pandas
 datetime
 mysql.connector
