@@ -48,7 +48,8 @@ Na raiz do projeto, há uma coleção de requisições no **Postman** para testa
 
 ## Ferramentas Utilizadas
 
-- Python v3.12
+- Python v3.12 ou subsequentes
+- Navegador Chrome
 - Visual Studio Code (IDE)
 - Vue.js
 - Postman
